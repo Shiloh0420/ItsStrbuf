@@ -126,14 +126,13 @@ void strbuf_grow(struct strbuf* sb, size_t extra) {
 
     size_t need = sb->len + extra;
 
-    // if (sb->alloc >= need) {
-    //   printf("Yes,bro,the space is enough.\n");
-    // }
+    if (sb->alloc >= need) {
+      printf("Yes,bro,the space is enough.\n");
+      return;
+    } else printf("No,the space isnt enough.\n",
+    "No problem,i will lend a hand. :)\n" );
 
-//    printf("No,the space isnt enough.\n",
-//    "No problem,i will lend a hand. :)\n" );
     char* new_memory=(char*)realloc(sb->buf, need);
-    printf("shfjhs");
     
     sb->buf=new_memory;
     sb->alloc = need;
@@ -148,28 +147,30 @@ void strbuf_add(struct strbuf* sb, const void* data, size_t len) {
     //     return;
     // }
 
-    // size_t need = sb->len + len;
+    strbuf_grow(sb, len+1);
 
-    // strbuf_grow(sb, len);
-
-    // printf("Ok,bro.\n");
-    // memcpy(sb->buf + sb->len, data, len);
-    // sb->len += len;
+    printf("Ok,bro.\n");
+    memcpy(sb->buf + sb->len, data, len);
+    printf("here\n");
+    sb->len += len;
+    sb->buf[sb->len]='\0';
 
 }
 
 // 向 sb 追加一个字符 c
 void strbuf_addch(struct strbuf* sb, int c) {
     
-    // if (sb == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL) {
+        printf("?");
+        return;
+    }
 
-    // strbuf_grow(sb, 1);
-
-    // sb->buf[sb->len] = (char)c;
-    // sb->len += 1;
+    strbuf_grow(sb, 2);
+    
+    printf("sad\n");
+    sb->buf[sb->len] = (char)c;
+    sb->len += 1;
+    sb->buf[sb->len] = '\0';
 
 }
 
@@ -177,82 +178,80 @@ void strbuf_addch(struct strbuf* sb, int c) {
 // 向 sb 追加一个字符串 s
 void strbuf_addstr(struct strbuf* sb, const char* s) {
 
-    // if (sb == NULL || s == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL || s == NULL) {
+        printf("?");
+        return;
+    }
 
-    // size_t len = strlen(s);
+    size_t len = strlen(s);
 
-    // strbuf_grow(sb, len);
+    strbuf_grow(sb, len+1);
 
-    // strcat(sb->buf + sb->len, s);
-    // sb->len += len;
+    strcat(sb->buf + sb->len, s);
+    sb->len += len;
 
 }
 
 // 向一个 sb 追加另一个 strbuf 的数据
 void strbuf_addbuf(struct strbuf* sb, const struct strbuf* sb2) {
 
-    // if (sb == NULL || sb2 == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL || sb2 == NULL) {
+        printf("?");
+        return;
+    }
 
-    // strbuf_grow(sb, sb2->len);
+    strbuf_grow(sb, sb2->len+1  );
 
-    // strbuf_add(sb, sb2->buf, sb2->len);
+    strbuf_add(sb, sb2->buf, sb2->len);
 
 }
 
 // 设置 sb 的长度 len
 void strbuf_setlen(struct strbuf* sb, size_t len) {
     
-    // if (sb == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL) {
+        printf("?");
+        return;
+    }
 
     // if (len > sb->len) {
     //     printf("No,bro,you cant do this ");
     //     return;
     // }
 
-    // if (len > sb->len) {
-    //     memset(sb->buf + sb->len, 0, len - sb->len);
-    // }
+    sb->len = len;
+    sb->buf[len]='\0';
 
-    // sb->len = len;
 
 }
 
 // 计算 sb 目前仍可以向后追加的字符串长度
 size_t strbuf_avail(const struct strbuf* sb) {
 
-    // if (sb == NULL) {
-    //     printf("?");
-    //     return 0;
-    // }
+    if (sb == NULL) {
+        printf("?");
+        return 0;
+    }
 
-    // size_t leisure = sb->alloc - sb->len;
-    // return leisure;
-    return 0;
+    size_t leisure = sb->alloc - sb->len - 1;
+    return leisure;
 
 }
 
 // 向 sb 内存坐标为 pos 位置插入长度为 len 的数据 data
 void strbuf_insert(struct strbuf* sb, size_t pos, const void* data, size_t len) {
 
-    // if (sb == NULL || data == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL || data == NULL) {
+        printf("?");
+        return;
+    }
 
-    // strbuf_grow(sb, len);
+    strbuf_grow(sb, len+1);
 
-    // memmove(sb->buf + len + pos, sb->buf+pos, len-pos);
-    // memcpy(sb->buf + pos, data, len);
-    // sb->len += len;
+    memmove(sb->buf + len + pos, sb->buf+pos, sb->len-pos+1);
+    printf("what");
+    memcpy(sb->buf + pos, data, len);
+    sb->len += len;
 
 }
 
@@ -271,85 +270,69 @@ void strbuf_insert(struct strbuf* sb, size_t pos, const void* data, size_t len) 
 // 去除 sb 缓冲区左端的所有空格、制表符和'\t'字符
 void strbuf_ltrim(struct strbuf *sb){
 
-    // if (sb == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL) {
+        printf("?");
+        return;
+    }
 
-    // int delete=0;
-    // for(int i=0;i<sb->len;i++){
-    //     if(sb->buf[i]!=' ' && sb->buf[i]!='\t'){
-    //     delete=i;
-    //     break;
-    //     }else{
-    //         break;
-    //     }
-    // }
+    int saki=0;
+    for(int i=0;i<sb->len;i++){
+        if(sb->buf[i] != ' ' && sb->buf[i] !='\t'){
+        saki=i;
+        break;
+        }
+    }
 
-    // if(delete==0){
-    //     return;
-    // }
+    if(saki==0){
+        return;
+    }
 
-    // if(delete>=sb->len){
-    // sb->buf[0]='\0';
-    // return;
-    // }
+    memmove(sb->buf,sb->buf+saki,sb->len-saki+1);
+    printf("\nsoyorin?\n");
 
-    // memmove(sb->buf,sb->buf+delete,sb->len-delete);
-
-    // sb->len-=delete;
-    // sb->buf[sb->len]='\0';
+    sb->len-=saki;
+    sb->buf[sb->len]='\0';
 
 }
  
 // 去除 sb 缓冲区右端的所有空格、制表符和'\t'字符
 void strbuf_rtrim(struct strbuf *sb){
 
-    // if (sb == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL) {
+        printf("?");
+        return;
+    }
 
-    // int delete=0;
-    // int Mygo=0;
-    // for(int i=0;i<sb->len;i++){
-    //     if(sb->buf[i]!=' ' && sb->buf[i]!='\t'){
-    //     Mygo=1;
-    //     }
-        
-    //     if(Mygo){
-    //         if(sb->buf[i]==' ' || sb->buf[i]=='\t'){
-    //         delete=i;
-    //         break;
-    //         }
-    //     }
-    // }
+    int soyorin=0;
+    for(int i=sb->len-1;i>0;i--){
+        if(sb->buf[i] != ' ' && sb->buf[i] != '\t'){
+            soyorin=i;
+            break;
+        }
+    }
 
-    // if(!delete){
-    //     return;
-    // }
-
-    // sb->buf[delete]='\0';
-    // sb->len =  delete;
+    sb->buf[soyorin+1]='\0';
+    sb->len = soyorin+1;
 
 }
  
 // 删除 sb 缓冲区从 pos 坐标开始长度为 len 的内容
 void strbuf_remove(struct strbuf *sb, size_t pos, size_t len){
 
-    // if (sb == NULL) {
-    //     printf("?");
-    //     return;
-    // }
+    if (sb == NULL) {
+        printf("?");
+        return;
+    }
 
-    // if(pos+len>sb->len){
-    //     sb->buf[pos]='\0';
-    //     sb->len=pos;
-    // }
+    if(pos+len>sb->len){
+        sb->buf[pos]='\0';
+        sb->len=pos;
+        return;
+    }
 
-    // memmove(sb->buf[pos],sb->buf[pos+len],sb->len-len);
-    // sb->buf[sb->len-len]='\0';
-    // sb->len-=len;
+    memmove(sb->buf[pos],sb->buf[pos+len],sb->len-len+1);
+    sb->buf[sb->len-len]='\0';
+    sb->len-=len;
 
 }
 
