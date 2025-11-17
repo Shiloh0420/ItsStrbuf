@@ -1,0 +1,22 @@
+name: Strbuf 提交 PR
+description: 提交 Strbuf lab，确保符合要求
+title: "[Submission] "
+labels: ""
+assignees: ""
+
+body:
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 提交前确认
+      description: 请确认以下内容
+      options:
+        - label: 我已确认阅读过本项目所有 README 文件
+          required: true
+        - label: 我已确认本地测试完全通过
+          required: true
+        - label: 我已确认 PR 标题按照指定要求修改
+          required: true
+        - label: 我已确认文件名按照 大驼峰命名法 命名
+          required: true
+          
