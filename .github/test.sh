@@ -24,12 +24,12 @@ fi
 sudo apt-get update >/dev/null
 sudo apt-get -qq -y install curl clang clang-tidy jq libgtest-dev >/dev/null
 
-# 获取PR修改的文件
-URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/$PR_ID/files"
-changeFile=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" $URL | jq -r '.[].filename')
+changeFile=$(find submissions -maxdepth 1 -type f -name "*.c")
+
+echo "使用的 C 文件: $changeFile"
 
 # 编译普通测试
-clang++ "$changeFile" .github/test.cpp -lgtest -lgtest_main -lpthread -Wall -std=c++17 2>compiler.log
+clang++ $changeFile .github/test.cpp -lgtest -lgtest_main -lpthread -Wall -std=c++17 2>compiler.log
 backUp=$?
 compiler_output=$(cat compiler.log)
 
@@ -42,7 +42,7 @@ fi
 timeout 20s ./a.out
 
 # 编译 AddressSanitize 测试
-clang++ "$changeFile" .github/test.cpp -lgtest -lgtest_main -lpthread \
+clang++ $changeFile .github/test.cpp -lgtest -lgtest_main -lpthread \
     -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope \
     -g -D __SA_TEST__ -std=c++17 -o a.out
 
@@ -63,4 +63,5 @@ if ! echo "$AddressSanitize_output" | grep -q "PASSED"; then
 fi
 
 OUTPUT_="你通过了 Strbuf 的所有测试!"
-    Comment "$OUTPUT_"
+Comment "$OUTPUT_"
+
