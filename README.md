@@ -37,7 +37,7 @@ submissions/
 
 ---
 
-## 情况一：只提交一个源文件
+## 源文件提交示例
 
 命名方式：
 
@@ -57,26 +57,7 @@ strbuf
 └── StrbufTest
 ```
 
----
-
-## 情况二：提交多个源文件
-
-在 `submissions/` 目录下创建以自己姓名拼音（大驼峰命名法）命名的文件夹，将所有源文件放入其中。
-
-示例（李四提交 1.c、2.c、3.c）：
-
-```
-strbuf
-├── LICENSE
-├── README.md
-├── submissions
-│   ├── README.md
-│   └── LiSi
-│       ├── 1.c
-│       ├── 2.c
-│       └── 3.c
-└── StrbufTest
-```
+代码提交详情以及多文件提交方式请阅读 `submissions/README.md`
 
 ---
 
