@@ -63,4 +63,4 @@ if ! echo "$AddressSanitize_output" | grep -q "PASSED"; then
 fi
 
 OUTPUT_="你通过了 Strbuf 的所有测试!"
-    Comment "$OUTPUT_
+    Comment "$OUTPUT_"
