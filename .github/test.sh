@@ -59,5 +59,7 @@ if echo "$AddressSanitize_output" | grep -q "FAILED"; then
     exit 1
 fi
 if ! echo "$AddressSanitize_output" | grep -q "PASSED"; then
+    OUTPUT="你通过了 Strbuf 的所有测试!"
+    Comment "$OUTPUT"
     exit 1
 fi
