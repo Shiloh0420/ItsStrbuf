@@ -59,6 +59,8 @@ strbuf
 
 代码提交详情以及多文件提交方式请阅读 `submissions/README.md`
 
+**向 main 分支提交的 `pull request` 不会被合并**
+
 ---
 
 ## 审核流程
