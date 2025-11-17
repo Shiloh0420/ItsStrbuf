@@ -2,7 +2,8 @@ name: Strbuf CI
 
 on:
   pull_request:
-    branches: ['*']
+    branches:
+      - '*'
 
 jobs:
   check-pr-branch:
@@ -11,31 +12,32 @@ jobs:
       - name: Check PR target branch
         run: |
           TARGET="${{ github.event.pull_request.base.ref }}"
-          if [ "$TARGET" == "main" ]; then
-            echo "PRs to main branch are not allowed!"
-            curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+          if [ "$TARGET" = "main" ]; then
+            echo "PRs to main are not allowed"
+            curl -s -S \
+                 -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
                  -H "Content-Type: application/json" \
                  -X POST \
-                 -d "{\"body\":\"请勿向 main 分支提交 PR！\"}" \
+                 -d "{\"body\":\"⚠ 请不要向 main 分支提交 PR！\"}" \
                  "${{ github.event.pull_request.comments_url }}"
             exit 1
-          else
-            echo "PR target branch is allowed: $TARGET"
           fi
+          echo "PR target branch OK: $TARGET"
 
   run-tests:
     runs-on: ubuntu-latest
     needs: check-pr-branch
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Run test script
         run: |
-          chmod +x ./.github/test.sh
-          timeout 300 ./.github/test.sh || code=$?; if [[ $code -ne 0 ]]; then exit $code; fi
-        shell: bash
+          chmod +x .github/test.sh
+          timeout 300 bash .github/test.sh
         env:
-          PR_ID: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+          PR_ID: ${{ github.event.pull_request.number }}
+        shell: bash
 
