@@ -9,15 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check PR target branch
-        if: ${{ github.event.pull_request.base.ref == 'main' }}
         run: |
-          echo "PRs to main branch are not allowed!"
-          curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
-               -H "Content-Type: application/json" \
-               -X POST \
-               -d "{\"body\":\" 请勿向 main 分支提交 pr ! \"}" \
-               "${{ github.event.pull_request.comments_url }}"
-          exit 1
+          TARGET="${{ github.event.pull_request.base.ref }}"
+          if [ "$TARGET" == "main" ]; then
+            echo "PRs to main branch are not allowed!"
+            curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+                 -H "Content-Type: application/json" \
+                 -X POST \
+                 -d "{\"body\":\"请勿向 main 分支提交 PR！\"}" \
+                 "${{ github.event.pull_request.comments_url }}"
+            exit 1
+          else
+            echo "PR target branch is allowed: $TARGET"
+          fi
 
   run-tests:
     runs-on: ubuntu-latest
