@@ -448,28 +448,28 @@ struct strbuf **strbuf_split_buf(const char *str, size_t len, int terminator, in
             break;
         }
         
-        const char *segment_end = start;
-        while (segment_end < end && *segment_end != terminator) {
-            segment_end++;
+        const char *thend = start;
+        while (thend < end && *thend != terminator) {
+            thend++;
         }
         
-        size_t segment_len = segment_end - start;
+        size_t nlen = thend - start;
         
-        if (segment_len > 0) {
+        if (nlen > 0) {
 
             struct strbuf *sb = (struct strbuf *)malloc(sizeof(struct strbuf));
             
-            sb->len = segment_len;
-            sb->alloc = segment_len + 1; 
+            sb->len = nlen;
+            sb->alloc = nlen + 1; 
             sb->buf = (char *)malloc(sb->alloc);
             
-            memcpy(sb->buf, start, segment_len);
-            sb->buf[segment_len] = '\0';
+            memcpy(sb->buf, start, nlen);
+            sb->buf[nlen] = '\0';
             
             result[count++] = sb;
         }
         
-        start = segment_end;
+        start = thend;
     }
     
     result[count] = NULL;
