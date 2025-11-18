@@ -11,6 +11,11 @@ arch系用户安装cmake
 ```sh
 yay cmake
 ```
+### 如果编译出现问题，则是gtest下载失败或没安装g++
+```sh
+sudo apt install libgtest-dev
+sudo apt install g++
+```
 ---
 
 fork该仓库到本地

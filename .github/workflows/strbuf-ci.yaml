@@ -1,0 +1,86 @@
+name: Strbuf CI
+
+on:
+  pull_request:
+    branches: ['*']
+
+jobs:
+  check-pr-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject PR to main branch
+        if: ${{ github.event.pull_request.base.ref == 'main' }}
+        run: |
+          PR_URL="${{ github.event.pull_request.url }}"
+          COMMENT_URL="${{ github.event.pull_request.comments_url }}"
+
+          # 评论提示
+          curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"body\":\"请勿向 main 分支提交 PR，本 PR 将被关闭。\"}" \
+               "$COMMENT_URL"
+
+          # 直接关闭 PR
+          curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X PATCH \
+               -d "{\"state\":\"closed\"}" \
+               "$PR_URL"
+
+          echo "PR to main branch closed."
+          exit 1
+
+  check-filename:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check PascalCase filename
+        run: |
+          DIR="submissions"
+          FILES=$(find "$DIR" -maxdepth 1 -type f -name "*.c")
+
+          COMMENT_URL="${{ github.event.pull_request.comments_url }}"
+
+          if [[ -z "$FILES" ]]; then
+            curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+                 -H "Content-Type: application/json" \
+                 -X POST \
+                 -d "{\"body\":\"未找到任何 C 文件，请提交 submissions 目录下的 .c 文件。\"}" \
+                 "$COMMENT_URL"
+            exit 1
+          fi
+
+          regex='^[A-Z][A-Za-z0-9]*\.c$'
+          for f in $FILES; do
+            base=$(basename "$f")
+            if [[ ! $base =~ $regex ]]; then
+              curl -s -S -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+                   -H "Content-Type: application/json" \
+                   -X POST \
+                   -d "{\"body\":\"文件名 \\\"$base\\\" 不符合大驼峰命名法。格式示例: WangJiale.c\"}" \
+                   "$COMMENT_URL"
+              exit 1
+            fi
+          done
+
+          echo "Filename OK. All .c files conform to PascalCase."
+
+  run-tests:
+    runs-on: ubuntu-latest
+    needs: [check-pr-branch, check-filename]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run test script
+        run: |
+          chmod +x ./.github/test.sh
+          timeout 300 ./.github/test.sh || code=$?; if [[ $code -ne 0 ]]; then exit $code; fi
+        shell: bash
+        env:
+          PR_ID: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+
