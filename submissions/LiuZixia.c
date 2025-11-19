@@ -33,16 +33,9 @@ void strbuf_init(struct strbuf *sb, size_t alloc){
 
 // 将字符串填充到 sb 中，长度为 len，容量为 alloc
 void strbuf_attach(struct strbuf *sb, void *str, size_t len, size_t alloc){
-   
-    if(sb->alloc > 0 && sb->buf!=NULL){
-        free(sb->buf);
-    }
-    
-    strbuf_init(sb,alloc);
 
     sb->buf=(char*)str;
     sb->alloc=alloc;
-    sb->buf[len]='\0';
     sb->len = len;
 
 }
